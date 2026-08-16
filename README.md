@@ -8,7 +8,7 @@ Status bar:  Go 5h 62% · wk 31% · mo 44%
 
 Report widget:
   OpenCode Go Usage
-  Workspace: wrk_01KFN36YVBH848K79XAME34JYD
+  Workspace: wrk_xxxxxxxxxxxxxxxxxxxxxxxx
   Rolling 5h ██████░░░░  62% · 1h 12m
   Weekly     ███░░░░░░░  31% · 3d 4h
   Monthly    ████░░░░░░  44% · 12d 0h
