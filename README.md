@@ -9,10 +9,10 @@ Status bar:  Go 5h 62% · wk 31% · mo 44%
 Report widget:
   OpenCode Go Usage
   Workspace: wrk_01KFN36YVBH848K79XAME34JYD
-  Rolling 5h  ██████░░░░  62% · 1h 12m
-  Weekly       ███░░░░░░░  31% · 3d 4h
-  Monthly      █████░░░░░  44% · 12d
-  Updated 14:32
+  Rolling 5h ██████░░░░  62% · 1h 12m
+  Weekly     ███░░░░░░░  31% · 3d 4h
+  Monthly    ████░░░░░░  44% · 12d 0h
+  Updated 2:32:05 PM  (time format follows your locale)
 ```
 
 ## Why this exists
@@ -32,7 +32,7 @@ countdowns only** — the page carries no dollar amounts, so neither does this.
 ## Install
 
 ```bash
-omp plugin install github:ishhaaab/pi-opencode-go-usage    # adjust to your fork
+omp plugin install github:dakai/pi-opencode-go-usage    # adjust to your fork
 # or, for local dev:
 omp plugin link /path/to/pi-opencode-go-usage
 ```
@@ -63,25 +63,25 @@ or use the slash command (persists to `~/.omp/agent/opencode-go-usage.json`, mod
 
 ## Commands
 
-| Command | Effect |
-|---|---|
-| `/opencode-go` | Fetch and show the report widget |
-| `/opencode-go --connect <wrk> <cookie>` | Save both, fetch, show |
-| `/opencode-go --workspace <id>` | Save workspace id only |
-| `/opencode-go --cookie <value>` | Save cookie only |
-| `/opencode-go --disconnect` | Forget both |
-| `/opencode-go --refresh` | Fetch again now |
-| `/opencode-go --json` | Export report to `~/.omp/agent/opencode-go-usage-report.json` |
+| Command                                 | Effect                                                        |
+| --------------------------------------- | ------------------------------------------------------------- |
+| `/opencode-go`                          | Fetch and show the report widget                              |
+| `/opencode-go --connect <wrk> <cookie>` | Save both, fetch, show                                        |
+| `/opencode-go --workspace <id>`         | Save workspace id only                                        |
+| `/opencode-go --cookie <value>`         | Save cookie only                                              |
+| `/opencode-go --disconnect`             | Forget both                                                   |
+| `/opencode-go --refresh`                | Fetch again now                                               |
+| `/opencode-go --json`                   | Export report to `~/.omp/agent/opencode-go-usage-report.json` |
 
 Usage refreshes automatically every 5 minutes.
 
 ## Failure modes
 
-| Status text | Meaning | Fix |
-|---|---|---|
-| `Cookie expired` | The `auth` session lapsed | Reconnect with a fresh cookie |
-| `Page carried no usage data` | opencode.ai markup changed | Update the parser |
-| `Network error` / `Request timed out` | Transient | Retry |
+| Status text                           | Meaning                    | Fix                           |
+| ------------------------------------- | -------------------------- | ----------------------------- |
+| `Cookie expired`                      | The `auth` session lapsed  | Reconnect with a fresh cookie |
+| `Page carried no usage data`          | opencode.ai markup changed | Update the parser             |
+| `Network error` / `Request timed out` | Transient                  | Retry                         |
 
 ## Security
 
