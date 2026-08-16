@@ -1,0 +1,34 @@
+{
+  "name": "pi-opencode-go-usage",
+  "version": "1.0.0",
+  "description": "Track OpenCode Go usage limits (rolling 5h / weekly / monthly) in-session by scraping the opencode.ai workspace page with your auth cookie.",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "omp",
+    "opencode",
+    "usage",
+    "go",
+    "quota",
+    "status-bar"
+  ],
+  "license": "MIT",
+  "files": [
+    "extensions",
+    "README.md",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "omp": {
+    "extensions": [
+      "./extensions/opencode-go-usage.ts"
+    ]
+  },
+  "pi": {
+    "extensions": [
+      "./extensions/opencode-go-usage.ts"
+    ]
+  }
+}

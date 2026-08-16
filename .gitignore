@@ -1,0 +1,16 @@
+# Dependencies (not installed locally; resolved from ~/.omp/plugins/node_modules at load)
+node_modules/
+bun.lock
+
+# Build / test artifacts
+dist/
+*.tmp
+
+# Credentials — never commit
+opencode-go-usage.json
+*.env
+.env
+
+# OS / editor
+.DS_Store
+Thumbs.db
