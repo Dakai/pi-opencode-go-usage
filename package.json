@@ -16,6 +16,7 @@
   "files": [
     "extensions",
     "README.md",
+    "README.zh-CN.md",
     "LICENSE"
   ],
   "peerDependencies": {

@@ -1,5 +1,7 @@
 # pi-opencode-go-usage
 
+**[简体中文](README.zh-CN.md) · English**
+
 Track OpenCode Go usage limits — **rolling 5-hour, weekly, and monthly** — in-session
 with a live status bar and a `/opencode-go` report widget.
 
@@ -32,7 +34,7 @@ countdowns only** — the page carries no dollar amounts, so neither does this.
 ## Install
 
 ```bash
-omp plugin install github:dakai/pi-opencode-go-usage    # adjust to your fork
+omp plugin install github:dakai/pi-opencode-go-usage
 # or, for local dev:
 omp plugin link /path/to/pi-opencode-go-usage
 ```
