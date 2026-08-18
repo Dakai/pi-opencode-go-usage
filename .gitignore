@@ -14,3 +14,7 @@ opencode-go-usage.json
 # OS / editor
 .DS_Store
 Thumbs.db
+
+.pi/
+.codegraph/
+.omp/
