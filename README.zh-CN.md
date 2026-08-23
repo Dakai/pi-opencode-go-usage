@@ -3,6 +3,8 @@
 在会话中实时追踪 OpenCode Go 的用量限额 —— **滚动 5 小时、每周、每月**，
 通过实时状态栏和 `/opencode-go` 报告组件展示。
 
+![显示 OpenCode Go 用量的状态栏](screenshot.jpeg)
+
 ```
 状态栏：  Go 5h 62% · wk 31% · mo 44%
 

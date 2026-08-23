@@ -5,6 +5,8 @@
 Track OpenCode Go usage limits — **rolling 5-hour, weekly, and monthly** — in-session
 with a live status bar and a `/opencode-go` report widget.
 
+![Status bar showing OpenCode Go usage](screenshot.jpeg)
+
 ```
 Status bar:  Go 5h 62% · wk 31% · mo 44%
 
