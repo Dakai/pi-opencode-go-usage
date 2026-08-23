@@ -1,10 +1,11 @@
 # pi-opencode-go-usage
 
+[![npm version](https://img.shields.io/npm/v/pi-opencode-go-usage?color=cb0000)](https://www.npmjs.com/package/pi-opencode-go-usage) [![pi package](https://img.shields.io/badge/pi-package-7a5cff)](https://pi.dev/packages/pi-opencode-go-usage) [![license MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 **[简体中文](README.zh-CN.md) · English**
 
 Track OpenCode Go usage limits — **rolling 5-hour, weekly, and monthly** — in-session
 with a live status bar and a `/opencode-go` report widget.
-
 ![Status bar showing OpenCode Go usage](screenshot.jpeg)
 
 ```
@@ -36,7 +37,9 @@ countdowns only** — the page carries no dollar amounts, so neither does this.
 ## Install
 
 ```bash
-omp plugin install github:dakai/pi-opencode-go-usage
+pi install npm:pi-opencode-go-usage   # Pi (recommended)
+# or
+omp plugin install github:Dakai/pi-opencode-go-usage
 # or, for local dev:
 omp plugin link /path/to/pi-opencode-go-usage
 ```

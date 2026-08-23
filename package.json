@@ -1,7 +1,8 @@
 {
   "name": "pi-opencode-go-usage",
   "version": "1.0.0",
-  "description": "Track OpenCode Go usage limits (rolling 5h / weekly / monthly) in-session by scraping the opencode.ai workspace page with your auth cookie.",
+  "description": "Track OpenCode Go usage limits (rolling 5h / weekly / monthly) in Pi — status bar + /opencode-go report via HTML scrape.",
+  "author": "Dakai",
   "keywords": [
     "pi-package",
     "pi-extension",
@@ -13,6 +14,14 @@
     "status-bar"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dakai/pi-opencode-go-usage.git"
+  },
+  "homepage": "https://github.com/Dakai/pi-opencode-go-usage#readme",
+  "bugs": {
+    "url": "https://github.com/Dakai/pi-opencode-go-usage/issues"
+  },
   "files": [
     "extensions",
     "README.md",
