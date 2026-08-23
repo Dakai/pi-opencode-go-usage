@@ -30,6 +30,7 @@
   "pi": {
     "extensions": [
       "./extensions/opencode-go-usage.ts"
-    ]
+    ],
+    "image": "https://raw.githubusercontent.com/Dakai/pi-opencode-go-usage/main/screenshot.jpeg"
   }
 }
