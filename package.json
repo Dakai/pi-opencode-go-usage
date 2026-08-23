@@ -1,6 +1,6 @@
 {
   "name": "pi-opencode-go-usage",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Track OpenCode Go usage limits (rolling 5h / weekly / monthly) in Pi — status bar + /opencode-go report via HTML scrape.",
   "author": "Dakai",
   "keywords": [
