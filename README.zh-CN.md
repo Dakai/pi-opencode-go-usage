@@ -3,7 +3,7 @@
 在会话中实时追踪 OpenCode Go 的用量限额 —— **滚动 5 小时、每周、每月**，
 通过实时状态栏和 `/opencode-go` 报告组件展示。
 
-![显示 OpenCode Go 用量的状态栏](screenshot.jpeg)
+![显示 OpenCode Go 用量的状态栏](assets/pi-opencode-go-usage.png)
 
 ```
 状态栏：  Go 5h 62% · wk 31% · mo 44%
@@ -72,6 +72,7 @@ export OPENCODE_GO_AUTH_COOKIE='…'
 | `/opencode-go --cookie <value>`         | 仅保存 cookie                                              |
 | `/opencode-go --disconnect`             | 清除两者                                                   |
 | `/opencode-go --refresh`                | 立即重新抓取                                               |
+| `/opencode-go --compact [on\|off]`      | 切换精简状态栏（`Go: 5h 0% · wk 2% · mo 2%`）               |
 | `/opencode-go --json`                   | 导出报告到 `~/.omp/agent/opencode-go-usage-report.json` |
 
 用量每 5 分钟自动刷新一次。

@@ -6,7 +6,7 @@
 
 Track OpenCode Go usage limits — **rolling 5-hour, weekly, and monthly** — in-session
 with a live status bar and a `/opencode-go` report widget.
-![Status bar showing OpenCode Go usage](screenshot.jpeg)
+![Status bar showing OpenCode Go usage](assets/pi-opencode-go-usage.png)
 
 ```
 Status bar:  Go 5h 62% · wk 31% · mo 44%
@@ -78,6 +78,7 @@ or use the slash command (persists to `~/.omp/agent/opencode-go-usage.json`, mod
 | `/opencode-go --cookie <value>`         | Save cookie only                                              |
 | `/opencode-go --disconnect`             | Forget both                                                   |
 | `/opencode-go --refresh`                | Fetch again now                                               |
+| `/opencode-go --compact [on\|off]`      | Toggle compact status bar (`Go: 5h 0% · wk 2% · mo 2%`)       |
 | `/opencode-go --json`                   | Export report to `~/.omp/agent/opencode-go-usage-report.json` |
 
 Usage refreshes automatically every 5 minutes.

@@ -36,6 +36,7 @@ interface UsageMeter {
 interface Config {
  workspaceId?: string;
  authCookie?: string;
+ compact?: boolean;
 }
 
 type FetchFailure =
@@ -298,11 +299,12 @@ export default function opencodeGoUsage(pi: ExtensionAPI): void {
    return;
   }
   const parts = meters.map((m) => {
+   if (config.compact) return `${METER_SHORT[m.kind]} ${m.percent}%`;
    const cd = countdown(m.resetsAt);
    return `${METER_SHORT[m.kind]} ${m.percent}%${cd ? ` (${cd})` : ""}`;
   });
   let text = `OpenCode Go: ${parts.join(" · ")}`;
-  if (lastFetchedAt) text += ` · ${fmtUpdate(lastFetchedAt)}`;
+  if (!config.compact && lastFetchedAt) text += ` · ${fmtUpdate(lastFetchedAt)}`;
   ctx.ui.setStatus("opencode-go", text);
  };
 
@@ -376,7 +378,7 @@ export default function opencodeGoUsage(pi: ExtensionAPI): void {
 
  pi.registerCommand("opencode-go", {
   description:
-   "Show OpenCode Go usage. Subcommands: --connect <wrk> <cookie> | --workspace <id> | --cookie <v> | --disconnect | --refresh | --json",
+   "Show OpenCode Go usage. Subcommands: --connect <wrk> <cookie> | --workspace <id> | --cookie <v> | --disconnect | --refresh | --compact [on|off] | --json",
   handler: async (args, ctx) => {
    const tokens = args.trim().split(/\s+/).filter(Boolean);
    const sub = tokens[0];
@@ -430,6 +432,14 @@ export default function opencodeGoUsage(pi: ExtensionAPI): void {
     renderStatus(ctx);
     ctx.ui.setWidget("opencode-go", undefined);
     ctx.ui.notify("Disconnected", "info");
+   }
+
+   if (sub === "--compact") {
+    const arg = rest[0];
+    config.compact = arg ? arg !== "off" && arg !== "false" : !config.compact;
+    await saveConfig(config);
+    renderStatus(ctx);
+    ctx.ui.notify(`Compact mode ${config.compact ? "on" : "off"}`, "info");
     return;
    }
 
