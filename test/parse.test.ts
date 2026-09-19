@@ -41,9 +41,20 @@ test("parseGoStatus maps the three console windows", () => {
   expect(five.resetsAt).toBe("2026-09-19T15:00:00.000Z");
   // Numeric and string micro-cent encodings both count.
   expect(week.percent).toBe(31);
+  // Each window keeps its own reset when it has one (~/meters.week.resetsAt).
+  expect(week.resetsAt).toBe("2026-09-21T00:00:00.000Z");
   expect(month.percent).toBe(44);
-  // `month` has no reset window.
-  expect(month.resetsAt).toBeNull();
+  // The month meter has no window: the console shows the paid period end.
+  expect(month.resetsAt).toBe("2026-10-01T00:00:00.000Z");
+});
+
+test("parseGoStatus leaves the month reset null without a period end", () => {
+  const meters = parseGoStatus({
+    access: {
+      meters: { month: { limitMicroCents: "20000000000", usedMicroCents: "8800000000" } },
+    },
+  });
+  expect(meters).toEqual([{ kind: "product_period", percent: 44, resetsAt: null }]);
 });
 
 test("parseGoStatus always lands on a finite percentage", () => {

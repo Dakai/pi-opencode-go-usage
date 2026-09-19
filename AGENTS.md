@@ -18,7 +18,9 @@ GET https://opencode.ai/console/api/go/status      header: x-org-id: wrk_…
 
 The extension calls that endpoint with the user's `__Host-console_session` cookie and
 derives the three percentages (`used / limit`; money fields are micro-cents = 1e-8
-dollars) plus reset countdowns. It reports percentages and countdowns only.
+dollars) plus reset countdowns. It reports percentages and countdowns only. `fiveHour`
+and `week` carry their own `resetsAt`; `month` has no window, so its reset is the paid
+period end `access.endsAt` — the value the console page renders for "Monthly usage".
 
 ## Build / test / lint
 

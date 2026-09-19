@@ -15,7 +15,9 @@
  *
  * So this extension calls that endpoint with your browser session cookie and
  * derives the three percentages (used/limit; micro-cents are 1e-8 dollars)
- * plus reset countdowns. It reports percentages and countdowns only.
+ * plus reset countdowns. It reports percentages and countdowns only. The month
+ * meter has no window, so its reset is the paid period end (`access.endsAt`) —
+ * the same value the console shows.
  *
  * UI: mirrors pi-opencode-usage — a status bar after each refresh plus a
  * `/opencode-go` slash command with subcommands for setup and export.
@@ -50,10 +52,12 @@ type FetchFailure =
  | { kind: "noSubscription" }
  | { kind: "noPayload" };
 
-const WINDOW_KEYS: { key: string; kind: MeterKind }[] = [
+const WINDOW_KEYS: { key: string; kind: MeterKind; fallsBackToPeriodEnd?: boolean }[] = [
  { key: "fiveHour", kind: "five_hour" },
  { key: "week", kind: "calendar_week" },
- { key: "month", kind: "product_period" },
+ // The month meter has no window of its own, so the console shows the paid
+ // period end (`access.endsAt`) as its reset — mirror that.
+ { key: "month", kind: "product_period", fallsBackToPeriodEnd: true },
 ];
 
 const METER_LABEL: Record<MeterKind, string> = {
@@ -132,10 +136,12 @@ function toNumber(value: unknown): number | null {
  * that as a changed API rather than as a confident zero.
  */
 export function parseGoStatus(payload: unknown): UsageMeter[] {
- const meters = asRecord(asRecord(asRecord(payload)?.access)?.meters);
+ const access = asRecord(asRecord(payload)?.access);
+ const meters = asRecord(access?.meters);
  if (!meters) return [];
+ const periodEndMs = typeof access?.endsAt === "string" ? Date.parse(access.endsAt) : NaN;
  const result: UsageMeter[] = [];
- for (const { key, kind } of WINDOW_KEYS) {
+ for (const { key, kind, fallsBackToPeriodEnd } of WINDOW_KEYS) {
   const window = asRecord(meters[key]);
   if (!window) continue;
   const used = toNumber(window.usedMicroCents);
@@ -143,7 +149,10 @@ export function parseGoStatus(payload: unknown): UsageMeter[] {
   if (used === null || limit === null) continue;
   // used share of the window limit, clamped to 0-100 and rounded to 0.1
   const percent = limit > 0 ? Math.round(Math.min(100, Math.max(0, (used / limit) * 100)) * 10) / 10 : 0;
-  const resetsAtMs = typeof window.resetsAt === "string" ? Date.parse(window.resetsAt) : NaN;
+  const ownResetMs = typeof window.resetsAt === "string" ? Date.parse(window.resetsAt) : NaN;
+  const resetsAtMs = Number.isFinite(ownResetMs)
+   ? ownResetMs
+   : fallsBackToPeriodEnd ? periodEndMs : NaN;
   result.push({
    kind,
    percent,
