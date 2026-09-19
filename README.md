@@ -22,17 +22,21 @@ Report widget:
 
 ## Why this exists
 
-OpenCode publishes **no usage API** and serves no `/api/*`. The
-`/workspace/<wrk_…>/go` screen is a SolidStart app that serialises the resolved
-values straight into the delivered HTML:
+The `/console/<wrk_…>/go` screen is a client-side app, so its HTML carries no
+numbers. It loads them from the console JSON API:
 
 ```
-rollingUsage:$R[12]={status:"ok",resetInSec:17400,usagePercent:42}
+GET https://opencode.ai/console/api/go/status     (x-org-id: wrk_…)
+-> { access: { meters: {
+      fiveHour: { resetsAt, limitMicroCents, usedMicroCents },
+      week:     { resetsAt, limitMicroCents, usedMicroCents },
+      month:    { limitMicroCents, usedMicroCents } } } }
 ```
 
-This extension fetches that page with your browser `auth` cookie and reads the
-three percentages + reset times out of the markup. It reports **percentages and
-countdowns only** — the page carries no dollar amounts, so neither does this.
+This extension calls that endpoint with your browser session cookie and derives
+the three percentages (`used / limit`; the money fields are micro-cents, i.e.
+1e-8 dollars) plus reset countdowns. It reports **percentages and countdowns
+only** — it does not spend screen space on dollar figures.
 
 ## Install
 
@@ -48,12 +52,13 @@ Then restart the session (or `/reload`).
 
 ## Connect
 
-You need two things from your signed-in opencode.ai workspace:
+You need two things from your signed-in opencode.ai account:
 
 1. **Workspace ID** — the `wrk_…` segment in the address bar:
-   `opencode.ai/workspace/`**`wrk_…`**`/go`
-2. **`auth` cookie value** — on that page press F12 → Application → Cookies →
-   `https://opencode.ai` → the `auth` row → copy its Value.
+   `opencode.ai/console/`**`wrk_…`**`/go`
+2. **Session cookie** — on that page press F12 → Application → Cookies →
+   `https://opencode.ai` → the `__Host-console_session` row → copy its Value
+   (it is `HttpOnly`, so `document.cookie` will not show it).
 
 Either set env vars (recommended — keeps the cookie out of session history):
 
@@ -65,8 +70,16 @@ export OPENCODE_GO_AUTH_COOKIE='…'
 or use the slash command (persists to `~/.omp/agent/opencode-go-usage.json`, mode 0600):
 
 ```
-/opencode-go --connect wrk_… <auth-cookie-value>
+/opencode-go --connect wrk_… <session-cookie-value>
 ```
+
+Bare values are sent as `__Host-console_session=<value>`. To send a different
+cookie name, or several at once, pass a full cookie pair: `name=value; name2=value2`.
+
+Env vars **take precedence** over the saved file: while they are set, `--connect` /
+`--cookie` save but have no effect (the command warns when it detects this). Unset
+them, or export the new value. `OPENCODE_GO_CONFIG_PATH` overrides where the file
+lives (default `~/.omp/agent/opencode-go-usage.json`).
 
 ## Commands
 
@@ -85,17 +98,18 @@ Usage refreshes automatically every 5 minutes.
 
 ## Failure modes
 
-| Status text                           | Meaning                    | Fix                           |
-| ------------------------------------- | -------------------------- | ----------------------------- |
-| `Cookie expired`                      | The `auth` session lapsed  | Reconnect with a fresh cookie |
-| `Page carried no usage data`          | opencode.ai markup changed | Update the parser             |
-| `Network error` / `Request timed out` | Transient                  | Retry                         |
+| Status text                           | Meaning                        | Fix                           |
+| ------------------------------------- | ------------------------------ | ----------------------------- |
+| `Session expired`                     | The console session lapsed     | Reconnect with a fresh cookie |
+| `No Go subscription on this workspace`| The console reports no Go plan | Check the workspace           |
+| `Console API response unrecognised`   | The console API changed shape  | Update the parser             |
+| `Network error` / `Request timed out` | Transient                      | Retry                         |
 
 ## Security
 
-This is a scrape authenticated by a browser session cookie, stored in a
-`0600`-mode file (or in env vars). It reports only the percentages opencode.ai
-already shows; a redesign of the page will break it, and it will say so instead
+This is an authenticated read of your own usage figures, using a browser session
+cookie stored in a `0600`-mode file (or in env vars). It reports only what the
+console already shows; an API change will break it, and it will say so instead
 of showing a confident zero.
 
 ## License

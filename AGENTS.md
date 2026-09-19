@@ -5,11 +5,20 @@
 
 ## What it does
 
-OpenCode publishes no usage API. The `/workspace/<wrk_…>/go` page serialises its numbers
-into the delivered HTML (`rollingUsage:$R[12]={status:"ok",resetInSec:17400,usagePercent:42}`).
-The extension fetches that page with the user's browser `auth` cookie and parses the three
-percentages + reset times. It reports percentages and countdowns only — the page carries no
-dollar amounts.
+OpenCode publishes no usage API of its own, but the `/console/<wrk_…>/go` screen is a
+client-side app that loads its numbers from the console JSON API:
+
+```
+GET https://opencode.ai/console/api/go/status      header: x-org-id: wrk_…
+-> { access: { meters: {
+      fiveHour: { resetsAt, limitMicroCents, usedMicroCents },
+      week:     { resetsAt, limitMicroCents, usedMicroCents },
+      month:    { limitMicroCents, usedMicroCents } } } }
+```
+
+The extension calls that endpoint with the user's `__Host-console_session` cookie and
+derives the three percentages (`used / limit`; money fields are micro-cents = 1e-8
+dollars) plus reset countdowns. It reports percentages and countdowns only.
 
 ## Build / test / lint
 
@@ -35,18 +44,24 @@ from `~/.omp/plugins/node_modules` when omp loads the plugin.
 
 - Single extension file; no build, no runtime deps. Bun globals (`fetch`, `setInterval`,
   `AbortController`) and `node:*` builtins only.
-- Pure logic (`parseWorkspaceHtml`, `fetchUsage`, `bar`, `countdown`) is exported from the
+- Pure logic (`parseGoStatus`, `fetchUsage`, `bar`, `countdown`) is exported from the
   extension module so tests import it without running the factory.
 - Credentials: `OPENCODE_GO_WORKSPACE_ID` / `OPENCODE_GO_AUTH_COOKIE` env vars (preferred), or
-  `/opencode-go --connect` which persists to `~/.omp/agent/opencode-go-usage.json` (mode 0600).
+  `/opencode-go --connect` which persists to `~/.omp/agent/opencode-go-usage.json` (mode 0600),
+  overridable with `OPENCODE_GO_CONFIG_PATH` (the test suite uses this so it never writes the
+  real file). Env vars win over the saved file, so `--connect`/`--cookie`/`--disconnect` warn
+  when they are being shadowed. The cookie may be a bare value (sent as
+  `__Host-console_session=<value>`) or a full `name=value; name2=value2` string.
 - Fetch failures are typed: `noCredentials` / `timeout` / `network` / `unauthorized` /
-  `http` / `noPayload`. `unauthorized` = cookie expired, `noPayload` = page redesign.
+  `http` / `noSubscription` / `noPayload`. `unauthorized` = session expired,
+  `noSubscription` = the console reports no Go plan on that workspace,
+  `noPayload` = the console API changed shape.
 
 ## Testing a live fetch
 
 ```bash
 bun -e 'import { fetchUsage } from "./extensions/opencode-go-usage.ts";
-fetchUsage("<wrk_…>", "auth=<cookie>").then(console.log, e => console.log(e.kind));'
+fetchUsage("<wrk_…>", "<session-cookie>").then(console.log, e => console.log(e.kind));'
 ```
 
 ## Install

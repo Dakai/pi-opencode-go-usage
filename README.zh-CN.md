@@ -19,16 +19,20 @@
 
 ## 为什么需要它
 
-OpenCode **没有提供用量 API**，也没有 `/api/*` 接口。
-`/workspace/<wrk_…>/go` 页面是一个 SolidStart 应用，会把解析后的数值直接
-序列化进交付的 HTML 中：
+`/console/<wrk_…>/go` 页面是客户端应用，交付的 HTML 里没有数值，
+数据来自控制台 JSON API：
 
 ```
-rollingUsage:$R[12]={status:"ok",resetInSec:17400,usagePercent:42}
+GET https://opencode.ai/console/api/go/status     (x-org-id: wrk_…)
+-> { access: { meters: {
+      fiveHour: { resetsAt, limitMicroCents, usedMicroCents },
+      week:     { resetsAt, limitMicroCents, usedMicroCents },
+      month:    { limitMicroCents, usedMicroCents } } } }
 ```
 
-本扩展用你的浏览器 `auth` cookie 抓取该页面，从标记中读取三个百分比 + 重置时间。
-它**只报告百分比和倒计时** —— 页面本身不携带任何金额信息，因此这里也没有。
+本扩展用你的浏览器会话 cookie 调用该接口，推导出三个百分比（`已用 / 限额`；
+金额字段单位为微分，即 1e-8 美元）与重置倒计时。
+它**只报告百分比和倒计时** —— 不占用界面展示金额。
 
 ## 安装
 
@@ -42,12 +46,13 @@ omp plugin link /path/to/pi-opencode-go-usage
 
 ## 连接
 
-你需要从已登录的 opencode.ai 工作区获取两样东西：
+你需要从已登录的 opencode.ai 账号获取两样东西：
 
 1. **工作区 ID（Workspace ID）** —— 地址栏中的 `wrk_…` 片段：
-   `opencode.ai/workspace/`**`wrk_…`**`/go`
-2. **`auth` cookie 值** —— 在该页面按 F12 → Application → Cookies →
-   `https://opencode.ai` → `auth` 行 → 复制其 Value。
+   `opencode.ai/console/`**`wrk_…`**`/go`
+2. **会话 cookie** —— 在该页面按 F12 → Application → Cookies →
+   `https://opencode.ai` → `__Host-console_session` 行 → 复制其 Value
+   （它是 `HttpOnly`，`document.cookie` 取不到）。
 
 可以设置环境变量（推荐 —— 可避免 cookie 出现在会话历史中）：
 
@@ -59,8 +64,15 @@ export OPENCODE_GO_AUTH_COOKIE='…'
 或使用斜杠命令（持久化到 `~/.omp/agent/opencode-go-usage.json`，权限 0600）：
 
 ```
-/opencode-go --connect wrk_… <auth-cookie-value>
+/opencode-go --connect wrk_… <会话-cookie-值>
 ```
+
+只给值时会按 `__Host-console_session=<值>` 发送。若要指定其他 cookie 名，
+或一次发送多个，可直接传入完整的 cookie 对：`name=value; name2=value2`。
+
+环境变量**优先于**保存的文件：只要它们已设置，`--connect` / `--cookie` 会保存但不生效
+（命令检测到这种情况时会给出警告）。请取消设置，或导出新的值。
+`OPENCODE_GO_CONFIG_PATH` 可覆盖配置文件位置（默认 `~/.omp/agent/opencode-go-usage.json`）。
 
 ## 命令
 
@@ -81,14 +93,15 @@ export OPENCODE_GO_AUTH_COOKIE='…'
 
 | 状态文本                                | 含义                    | 修复                           |
 | ------------------------------------- | -------------------------- | ----------------------------- |
-| `Cookie expired`                      | `auth` 会话已过期  | 用新 cookie 重新连接 |
-| `Page carried no usage data`          | opencode.ai 标记已变更 | 更新解析器             |
+| `Session expired`                     | 控制台会话已过期  | 用新 cookie 重新连接 |
+| `No Go subscription on this workspace`| 该工作区没有 Go 订阅 | 检查工作区 |
+| `Console API response unrecognised`   | 控制台接口结构已变更 | 更新解析器             |
 | `Network error` / `Request timed out` | 瞬时错误                  | 重试                         |
 
 ## 安全性
 
-这是通过浏览器会话 cookie 认证的抓取，存储在 `0600` 权限文件中（或环境变量）。
-它只报告 opencode.ai 已展示的百分比；页面改版会导致其失效，届时它会明确报错，
+这是对你本人用量数据的认证读取，cookie 存储在 `0600` 权限文件中（或环境变量）。
+它只报告控制台已经展示的信息；接口变更会导致其失效，届时它会明确报错，
 而不是自信地显示一个零值。
 
 ## 许可证
