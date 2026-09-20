@@ -71,4 +71,21 @@ fetchUsage("<wrk_…>", "<session-cookie>").then(console.log, e => console.log(e
 ```bash
 omp plugin link /path/to/pi-opencode-go-usage   # local dev
 omp plugin install github:Dakai/pi-opencode-go-usage   # from this repo
+pi install npm:pi-opencode-go-usage   # published package
 ```
+
+## Releasing
+
+Bump `version` in `package.json`, commit, push, then tag that commit:
+
+```bash
+git tag v1.1.1 && git push origin v1.1.1
+```
+
+`.github/workflows/release.yml` runs the tests, refuses to publish unless the tag
+equals `v<package.json version>`, and publishes to npm. It prefers npm **trusted
+publishing** (OIDC, `id-token: write`; configure GitHub as the trusted publisher for
+`pi-opencode-go-usage` on npmjs.com) and falls back to an `NPM_TOKEN` repository
+secret when one is set. GitHub-installed copies track the repo, so they need no
+npm step — `omp plugin install github:Dakai/pi-opencode-go-usage --force` refreshes
+them.

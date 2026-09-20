@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write # npm trusted publishing (OIDC)
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+      - name: Test
+        run: bun test
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing needs npm >= 11.5.1.
+      - run: npm install -g npm@latest
+
+      - name: Require the tag to match package.json
+        run: |
+          set -euo pipefail
+          want="v$(node -p "require('./package.json').version")"
+          if [ "$GITHUB_REF_NAME" != "$want" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json ($want)"
+            exit 1
+          fi
+
+      # Preferred: npmjs.com -> package -> Settings -> Trusted Publisher
+      # (GitHub, owner/repo, workflow release.yml). No secret to rotate.
+      - name: Publish (trusted publishing / OIDC)
+        if: env.NPM_TOKEN == ''
+        run: |
+          # setup-node leaves an empty authToken line behind; drop it so npm
+          # falls through to the OIDC exchange.
+          npm config delete //registry.npmjs.org/:_authToken || true
+          npm publish
+
+      # Fallback for repositories without a trusted publisher configured.
+      - name: Publish (NPM_TOKEN)
+        if: env.NPM_TOKEN != ''
+        run: npm publish --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
