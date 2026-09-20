@@ -16,7 +16,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Dakai/pi-opencode-go-usage.git"
+    "url": "git+https://github.com/Dakai/pi-opencode-go-usage.git"
   },
   "homepage": "https://github.com/Dakai/pi-opencode-go-usage#readme",
   "bugs": {
